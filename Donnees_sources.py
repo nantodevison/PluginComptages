@@ -7,6 +7,7 @@ Traitementsdes donnes individuelles fournies par a DREAM TEAM en mixtra ou vikin
 '''
 
 import pandas as pd
+import numpy as np
 import plotly.express as px
 from datetime import datetime
 import os
@@ -44,6 +45,7 @@ def NettoyageTemps(dfVehiculesValides):
 
 def GroupeCompletude(dfValide):
     """
+    Pour les donnees individuelles uniquement
     a partir des donnees nettoyees sur le temps, regouper les donnees par tranche horaire, type et sens 
     in : 
         dfValide : df nettoyees avec les attributs date_heure, nbVeh et sens, cf fonction NettoyageTemps()
@@ -72,7 +74,7 @@ def NombreDeJours(dfHeureTypeSens):
     """
     a partir d'une df groupees par heure et complete, deduire le nombre de jours plein de comptage, ouvres, samedi, dimanche...
     in :
-        dfHeureTypeSens : df avec ena ttribut : date_heure (timestamp horaire), type_veh ('2r',vl,pl,tv), sens (sens1, sens2), nbVeh (integer)
+        dfHeureTypeSens : df avec ena ttribut : date_heure (timestamp horaire), type_veh ('2r',vl,pl,tv), sens (sens1, sens2), nbVeh (integer) cf GroupeCompletude()
     out : 
         un dico avec en key nbJours, nbJoursOuvres,samedi,dimanche
     """
@@ -81,11 +83,12 @@ def NombreDeJours(dfHeureTypeSens):
             'nbJours':dfHeureTypeSens.date_heure.dt.dayofyear.nunique(),
             'nbJoursOuvres' : dfHeureTypeSens.loc[dfHeureTypeSens.date_heure.dt.dayofweek.isin(range(5))].date_heure.dt.dayofyear.nunique()}
 
-def semaineMoyenne(dfHeureTypeSens,dicoNbJours):
+def semaineMoyenne(dfHeureTypeSens):
     """
     a partir des donnees pour chaque heure, type de veh et sens, et en fonction du nombre de jours de mesure,
     obtenir un semaine moyenne
     """
+    dicoNbJours=NombreDeJours(dfHeureTypeSens)
     dfMoyenne=dfHeureTypeSens.groupby(['jour','heure','type_veh','sens']).nbVeh.sum().reset_index().merge(dicoNbJours['dfNbJours'],left_on='jour', right_index=True)
     dfMoyenne['nbVeh']=dfMoyenne['nbVeh']/dfMoyenne['nbOcc']
     return dfMoyenne
@@ -333,7 +336,7 @@ class ComptageDonneesIndiv(object):
         dfValide=NettoyageTemps(self.df2SensBase)
         dfHeureTypeSens=GroupeCompletude(dfValide)
         dicoNbJours=NombreDeJours(dfHeureTypeSens)
-        dfMoyenne=semaineMoyenne(dfHeureTypeSens, dicoNbJours)
+        dfMoyenne=semaineMoyenne(dfHeureTypeSens)
         return dfHeureTypeSens,dicoNbJours,dfMoyenne
     
     def graphs(self,typesVeh, typesDonnees, sens):
@@ -341,7 +344,179 @@ class ComptageDonneesIndiv(object):
         creer les graphs pour visu
         """
         self.dicoHoraire,self.dicoJournalier=IndicsGraphs(self.dfMoyenne,typesVeh,typesDonnees,sens)
-       
+
+class FIM():
+    """
+    classe dedié aux fichiers FIM de comptage brut
+    attributs : 
+        dico_corresp_type_veh : dico poutr determiner le type de vehicule selon en-tete
+        dico_corresp_type_fichier : dico poutr determiner le mode de comptag selon en-tete
+        pas_temporel : pas de concatenation des donnes, issu de en-tete (cf fonction params_fim())
+        date_debut : date de debut du comptage, (cf fonction params_fim())
+        mode : mod de cimptage (cf fonction params_fim())
+        taille_donnees : integer : taille des blocs de donnees
+        df_tot_heure : df avec dateIndex et valeur horaire VL ou TV et PL et tot si calculée
+        df_tot_jour : df avec dateIndex et valeur journaliere TV et PL
+        tmja
+        pl,
+        pc_pl
+        sens_uniq : booleen
+        sens_uniq_nb_blocs : si sens_uniq : nb de bloc de donnees
+        date_fin
+        dfHeureTypeSens
+        dfHoraire2Sens
+        dfSemaineMoyenne
+    """
+    def __init__(self, fichier, gest=None):
+        self.fichier_fim=fichier
+        self.dico_corresp_type_veh={'TV':('1.T','2.','1.'),'VL':('2.V','4.V'),'PL':('3.P','2.P','4.P')}
+        self.dico_corresp_type_fichier={'mode3' : ('1.T','3.P'), 'mode4' : ('2.V','2.P','4.V', '4.P'), 'mode2':('2.',), 'mode1' : ('1.',)}
+        self.gest=gest
+        lignes=self.ouvrir_fim()
+        self.pas_temporel,self.date_debut,self.mode=self.params_fim(lignes)
+        liste_lign_titre,self.sens_uniq,self.sens_uniq_nb_blocs=self.liste_carac_fichiers(lignes)
+        self.taille_donnees=self.taille_bloc_donnees(lignes,liste_lign_titre)
+        self.isoler_bloc(lignes, liste_lign_titre)
+        self.dfHeureTypeSens,self.dfHoraire2Sens=self.traficsHoraires(liste_lign_titre)
+        self.dfSemaineMoyenne,self.tmja,self.pc_pl, self.pl=self.calcul_indicateurs_agreges()
+
+    def ouvrir_fim(self):
+        """
+        ouvrir le fichier txt et en sortir la liste des lignes
+        """
+        with open(self.fichier_fim) as f :
+            lignes=[e.strip() for e in f.readlines()]
+        return lignes
+    
+    def corriger_mode(self,lignes, mode):
+        """
+        correction du fichier fim si mode = 4. dans le fichiers, pour pouvoir diiférencier VL et PL
+        """
+        i=0
+        for e,l in enumerate(lignes) :
+            if mode=='4.' : #porte ouvert pour d'auter corrections si beoisn
+                if '   4.   ' in l : 
+                    if i% 2==0 :
+                        lignes[e]=l.replace('   4.   ','   4.V   ')
+                        i+=1
+                    else : 
+                        lignes[e]=l.replace('   4.   ','   4.P   ') 
+                        i+=1
+
+    def params_fim(self,lignes):
+        """
+        obtenir les infos générales du fichier : date_debut(anne, mois, jour, heure, minute), mode
+        """
+        annee,mois,jour,heure,minute,pas_temporel=(int(lignes[0].split('.')[i].strip()) for i in range(5,11))
+        #particularite CD16 : l'identifiant route et section est present dans le FIM
+        if self.gest=='CD16' : 
+            self.section_cp='_'.join([str(int(lignes[0].split('.')[a].strip())) for a in (2,3)])
+        date_debut=pd.to_datetime(f'{jour}-{mois}-{annee} {heure}:{minute}', dayfirst=True)
+        mode=lignes[0].split()[9]
+        if mode in ['4.',] : #correction si le mode est de type 4. sans distinction exlpicite de VL TV PL. porte ouvert à d'autre cas si besoin 
+            self.corriger_mode(lignes, mode)
+            mode=lignes[0].split()[9]
+        mode=[k for k,v in self.dico_corresp_type_fichier.items() if any([e == mode for e in v])][0]
+        if not mode : 
+            raise self.fim_TypeModeError
+        return pas_temporel,date_debut,mode
+        
+
+    def fim_type_veh(self,ligne):
+        """
+        savoir si le fichier fim concerne les TV, VL ou PL
+        in : 
+            ligne : ligne du fichier
+        """
+
+        for k,v  in self.dico_corresp_type_veh.items() : 
+            if any([e+' ' in ligne for e in v]) :
+                return [cle for cle, value in self.dico_corresp_type_veh.items() for e in value  if e==ligne.split()[9]][0]
+    
+    def liste_carac_fichiers(self,lignes):
+        """
+        creer une liste des principales caracteristiques 
+        """
+        liste_lign_titre=[]
+        for i,ligne in enumerate(lignes) : 
+            type_veh=self.fim_type_veh(ligne)
+            if type_veh : 
+                sens=ligne.split('.')[4].strip()
+                liste_lign_titre.append([i, type_veh,sens])
+        sens_uniq=True if len(set([e[2] for e in liste_lign_titre]))==1 else False
+        sens_uniq_nb_blocs=len(liste_lign_titre) if sens_uniq else np.NaN 
+        return liste_lign_titre,sens_uniq,sens_uniq_nb_blocs
+
+    def taille_bloc_donnees(self,lignes_fichiers,liste_lign_titre) : 
+        """
+        verifier que les blocs de donnees ont tous la mm taille
+        in : 
+            lignes_fichiers : toute les lignes du fichiers, issu de f.readlines()
+        """
+        taille_donnees=tuple(set([liste_lign_titre[i+1][0]-(liste_lign_titre[i][0]+1) for i in range(len(liste_lign_titre)-1)]+
+                           [len(lignes_fichiers)-1-liste_lign_titre[len(liste_lign_titre)-1][0]]))
+        if len(taille_donnees)>1 : 
+            raise self.fim_TailleBlocDonneesError(taille_donnees)
+        else : 
+            return taille_donnees[0]
+
+    def isoler_bloc(self,lignes, liste_lign_titre) : 
+        """
+        isoler les blocs de données des lignes de titre,en fonction du mode de comptage
+        """
+        for i,e in enumerate(liste_lign_titre) :
+            if self.mode in ('mode3','mode1') :
+                e.append([int(b) for c in [a.split('.') for a in [a.strip() for a in lignes[e[0]+1:e[0]+1+self.taille_donnees]]] for b in c if b])
+            elif self.mode in ('mode4', 'mode2') :
+                e.append([sum([int(e) for e in b if e]) for b in [a.split('.') for a in [a.strip() for a in lignes[e[0]+2:e[0]+1+self.taille_donnees]]]])
+        return
+        
+    def traficsHoraires(self,liste_lign_titre):
+        """
+        creer une df des donnes avec un index datetimeindex de freq basee sur le pas temporel et rnvoi la date de fin
+        """
+        freq=str(int(self.pas_temporel))+'T'
+        """
+        for i,e in enumerate(liste_lign_titre) :
+            df=pd.DataFrame(liste_lign_titre[i][3], columns=[liste_lign_titre[i][1]+'_sens'+liste_lign_titre[i][2]])
+            df.index=pd.date_range(self.date_debut, periods=len(df), freq=freq)
+            if i==0 : 
+                self.df_heure_brut=df
+            else : 
+                self.df_heure_brut=self.df_heure_brut.merge(df, left_index=True, right_index=True)
+        self.date_fin=self.df_heure_brut.index.max()
+        """
+        dfHeureTypeSens=pd.concat([pd.DataFrame({'date_heure':pd.date_range(self.date_debut, periods=len(liste_lign_titre[i][3]), freq=freq),'nbVeh':liste_lign_titre[i][3]})
+                   .assign(type_veh=liste_lign_titre[i][1].lower(),sens='sens'+liste_lign_titre[i][2].lower()) for i in range(len(liste_lign_titre))],
+                  axis=0)
+        dfHeureTypeSens['jour']=dfHeureTypeSens.date_heure.dt.dayofweek
+        dfHeureTypeSens['jourAnnee']=dfHeureTypeSens.date_heure.dt.dayofyear
+        dfHeureTypeSens['heure']=dfHeureTypeSens.date_heure.dt.hour
+        dfHeureTypeSens['date']=pd.to_datetime(dfHeureTypeSens.date_heure.dt.date)
+        dfHoraire2Sens=dfHeureTypeSens.groupby(['date_heure','type_veh','jour','jourAnnee','heure','date']).nbVeh.sum().reset_index()
+        return dfHeureTypeSens,dfHoraire2Sens
+
+    def calcul_indicateurs_agreges(self):
+        """
+        calculer le tmjs, pl et pc_pl pour un fichier
+        """
+        #calcul d'une semaine moyenne
+        dfSemaineMoyenne=semaineMoyenne(NettoyageTemps(self.dfHeureTypeSens))
+        #TMJA
+        if 'tv' in dfSemaineMoyenne.type_veh.unique() : 
+            tmja=round(dfSemaineMoyenne.loc[dfSemaineMoyenne['type_veh']=='tv'].nbVeh.sum()/7,0)
+        else :
+            tmja=round(dfSemaineMoyenne.nbVeh.sum()/7,0)
+        #PL & PC_PL
+        if self.mode not in ('mode2','mode1') : 
+            pl=round(dfSemaineMoyenne.loc[dfSemaineMoyenne['type_veh']=='pl'].nbVeh.sum()/7,0)
+            pc_pl=pl/tmja*100
+        else : 
+            pl,pc_pl=np.NaN, np.NaN
+        return dfSemaineMoyenne,tmja,pc_pl, pl
+        
+
+      
 class PasAssezMesureError(Exception):
     """
     Exception levee si le fichier comport emoins de 7 jours

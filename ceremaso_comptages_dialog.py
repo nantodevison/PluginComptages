@@ -28,7 +28,7 @@ from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets,QtGui
 from qgis.PyQt.QtWidgets import QGroupBox,QCheckBox
 from PyQt5.QtCore import pyqtSlot
-import ceremaso_comptages.Donnees_individuelles as di
+import ceremaso_comptages.Donnees_sources as di
 
 # This loads your .ui file so that PyQt can populate your plugin with the elements from Qt Designer
 FORM_CLASS_base, _ = uic.loadUiType(os.path.join(
