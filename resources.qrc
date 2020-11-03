@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/ceremaso_comptages" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>

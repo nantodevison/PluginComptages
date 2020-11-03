@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CeremaSoComptagesDialogTraiterPointComptage</class>
+ <widget class="QDialog" name="CeremaSoComptagesDialogTraiterPointComptage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>378</width>
+    <height>285</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QRadioButton" name="radioButtonTraiterCpt1Fichier">
+       <property name="text">
+        <string>Traiter 1 seul sens de comptage</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QgsFileWidget" name="mQgsFileWidgetTraiter1sens">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(127, 127, 127);</string>
+       </property>
+       <property name="dialogTitle">
+        <string>Choisir le fichier</string>
+       </property>
+       <property name="storageMode">
+        <enum>QgsFileWidget::GetMultipleFiles</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButtonTraiterCpt1point">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Traiter 1 seul point de comptage</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QgsFileWidget" name="mQgsFileWidgetTraiter1Point">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="storageMode">
+        <enum>QgsFileWidget::GetDirectory</enum>
+       </property>
+       <property name="options">
+        <set>QFileDialog::ShowDirsOnly</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioButtonTraiterCptPlusieursPt">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Traiter plusieurs points de comptage</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QgsFileWidget" name="mQgsFileWidgetTraiterPlusieursPoints">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="storageMode">
+        <enum>QgsFileWidget::GetDirectory</enum>
+       </property>
+       <property name="options">
+        <set>QFileDialog::ShowDirsOnly</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>60</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Traitement des données individuelles issues de radars Vikings ou compteurs à tubes</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="margin">
+      <number>5</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsFileWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsfilewidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>CeremaSoComptagesDialogTraiterPointComptage</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>CeremaSoComptagesDialogTraiterPointComptage</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

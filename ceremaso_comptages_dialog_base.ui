@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CeremaSoComptagesDialogBase</class>
+ <widget class="QDialog" name="CeremaSoComptagesDialogBase">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>412</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Comptages CeremaSO</string>
+  </property>
+  <widget class="QPushButton" name="pushButtonTraiterPointComptage">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>70</y>
+     <width>281</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Traiter 1 ou plusieurs points de comptage</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
