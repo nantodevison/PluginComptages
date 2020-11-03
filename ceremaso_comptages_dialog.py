@@ -40,6 +40,9 @@ FORM_CLASS_traiterPt, _ = uic.loadUiType(os.path.join(
 FORM_CLASS_VisuExport, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ceremaso_comptages_dialog_visu-export.ui'))
 
+FORM_CLASS_DonneesType, _ = uic.loadUiType(os.path.join(
+    os.path.dirname(__file__), 'ceremaso_comptages_dialog_donnees_type.ui'))
+
 class CeremaSoComptagesDialog(QtWidgets.QDialog, FORM_CLASS_base):
     def __init__(self, parent=None):
         """Constructor."""
@@ -52,7 +55,7 @@ class CeremaSoComptagesDialog(QtWidgets.QDialog, FORM_CLASS_base):
         self.setupUi(self)
         
         #signal/slots
-        self.pushButtonTraiterPointComptage.clicked.connect(self.ouvrirTraiterPtDialog)
+        self.pushButtonTraiterPointComptage.clicked.connect(self.ouvrirDonneesType)
         
     def ouvrirTraiterPtDialog(self):
         """
@@ -67,6 +70,29 @@ class CeremaSoComptagesDialog(QtWidgets.QDialog, FORM_CLASS_base):
             # Do something useful here - delete the line containing pass and
             # substitute with your code.
             print('ok')
+            
+    def ouvrirDonneesType(self):
+        """
+        ouvrir la fenetre de la classe CeremaSoComptagesTraiterPtDialog
+        """
+        self.fenetreDonneesType=CeremaSoComptagesDonneesType()
+        self.fenetreDonneesType.show()
+        
+        
+            
+class CeremaSoComptagesDonneesType(QtWidgets.QDialog, FORM_CLASS_DonneesType):
+    def __init__(self, parent=None):
+        """Constructor."""
+        super(CeremaSoComptagesDonneesType, self).__init__(parent)
+        # Set up the user interface from Designer through FORM_CLASS.
+        # After self.setupUi() you can access any designer object by doing
+        # self.<objectname>, and you can use autoconnect slots - see
+        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
+        # #widgets-and-dialogs-with-auto-connect
+        self.setupUi(self)
+
+       
+    
         
 class CeremaSoComptagesTraiterPtDialog(QtWidgets.QDialog, FORM_CLASS_traiterPt):
     def __init__(self, parent=None):
