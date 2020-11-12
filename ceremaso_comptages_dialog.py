@@ -57,19 +57,6 @@ class CeremaSoComptagesDialog(QtWidgets.QDialog, FORM_CLASS_base):
         #signal/slots
         self.pushButtonTraiterPointComptage.clicked.connect(self.ouvrirDonneesType)
         
-    def ouvrirTraiterPtDialog(self):
-        """
-        ouvrir la fenetre de la classe CeremaSoComptagesTraiterPtDialog
-        """
-        self.fenetreTraiterPt=CeremaSoComptagesTraiterPtDialog()
-        self.fenetreTraiterPt.show()
-        # Run the dialog event loop
-        result = self.fenetreTraiterPt.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            print('ok')
             
     def ouvrirDonneesType(self):
         """
@@ -77,6 +64,10 @@ class CeremaSoComptagesDialog(QtWidgets.QDialog, FORM_CLASS_base):
         """
         self.fenetreDonneesType=CeremaSoComptagesDonneesType()
         self.fenetreDonneesType.show()
+        result = self.fenetreDonneesType.exec_()
+        # See if OK was pressed
+        if result:
+            pass
         
         
             
@@ -90,13 +81,28 @@ class CeremaSoComptagesDonneesType(QtWidgets.QDialog, FORM_CLASS_DonneesType):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.buttonBox.accepted.connect(self.ouvrirTraiterPtDialog)
+    
+    def ouvrirTraiterPtDialog(self):
+        """
+        ouvrir la fenetre de la classe CeremaSoComptagesTraiterPtDialog
+        """
+        donneesType='Fim' if self.radioButtonFim.isChecked() else 'Indiv'
+        self.fenetreTraiterPt=CeremaSoComptagesTraiterPtDialog(donneesType)
+        self.fenetreTraiterPt.show()
+        # Run the dialog event loop
+        result = self.fenetreTraiterPt.exec_()
+        # See if OK was pressed
+        if result:
+            pass
 
        
     
         
 class CeremaSoComptagesTraiterPtDialog(QtWidgets.QDialog, FORM_CLASS_traiterPt):
-    def __init__(self, parent=None):
+    def __init__(self,donneesType, parent=None):
         """Constructor."""
+        self.donneesType=donneesType
         super(CeremaSoComptagesTraiterPtDialog, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
@@ -136,11 +142,11 @@ class CeremaSoComptagesTraiterPtDialog(QtWidgets.QDialog, FORM_CLASS_traiterPt):
                 typeTraitement=t
                 break
                 
-        self.fenetreVisuExport=CeremaSoComptagesVisuExport(typeTraitement,source)
+        self.fenetreVisuExport=CeremaSoComptagesVisuExport(self.donneesType,typeTraitement,source)
         self.fenetreVisuExport.show()
         
 class CeremaSoComptagesVisuExport(QtWidgets.QDialog, FORM_CLASS_VisuExport):
-    def __init__(self, typeTraite,source,parent=None):
+    def __init__(self, donneesType,typeTraite,source,parent=None):
         """Constructor."""
         super(CeremaSoComptagesVisuExport, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
@@ -155,6 +161,7 @@ class CeremaSoComptagesVisuExport(QtWidgets.QDialog, FORM_CLASS_VisuExport):
         
         self.typeTraite=typeTraite
         self.source=source
+        self.donneesType=donneesType
         self.cpt=self.calculDfComptage()
         
     def calculDfComptage(self):
