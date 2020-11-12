@@ -382,7 +382,7 @@ class ComptageDonneesIndiv(object):
         figSyntheses = make_subplots(rows=5, cols=1,subplot_titles=('évolutions horaires moyenne Jours Ouvrable','évolution moyenne des vitesses sens 1',
                                                    'évolution moyenne des vitesses sens 2','évolution journaliere moyenne', 'comparaison des sens de circulation'))
         for t in typesVeh :
-            donnees=self.dicoHoraire['mjo']['2sens'].loc[self.dicoHoraire['mjo']['2sens'].type_veh==t].groupby( ['heure','type_veh']).sum().reset_index()
+            donnees=self.dicoHoraire['mjo']['2sens']['donnees'].loc[self.dicoHoraire['mjo']['2sens']['donnees'].type_veh==t].groupby( ['heure','type_veh']).sum().reset_index()
             figSyntheses.add_trace(go.Bar(x=donnees.heure,y=donnees.nbVeh, name=t), row=1, col=1)
         for v in ('v10','v50','v85') : 
             vts=self.dfMoyenne.loc[(self.dfMoyenne.jour.isin(self.dicoHoraire['mja']['listJours'])) & (self.dfMoyenne.sens=='sens1')
@@ -393,10 +393,10 @@ class ComptageDonneesIndiv(object):
                ].groupby(['heure','sens'])[v].mean().reset_index()
             figSyntheses.add_trace(go.Scatter(x=vts['heure'], y=vts[v], name=v),row=3, col=1)
         for t in typesVeh :
-            donnees=self.dicoJournalier['mja']['2sens'].loc[self.dicoJournalier['mja']['2sens'].type_veh==t].groupby(['jour','type_veh']).nbVeh.sum().reset_index()
+            donnees=self.dicoJournalier['mja']['2sens']['donnees'].loc[self.dicoJournalier['mja']['2sens']['donnees'].type_veh==t].groupby(['jour','type_veh']).nbVeh.sum().reset_index()
             figSyntheses.add_trace(go.Bar(x=donnees.jour,y=donnees.nbVeh, name=t), row=4, col=1)
         for s in ['sens1','sens2'] :
-            donnees=self.dicoJournalier['mja']['compSens'].loc[self.dicoJournalier['mja']['compSens'].sens==s]
+            donnees=self.dicoJournalier['mja']['compSens']['donnees'].loc[self.dicoJournalier['mja']['compSens']['donnees'].sens==s]
             figSyntheses.add_trace(go.Bar(x=donnees.jour,y=donnees.nbVeh, name=s), row=5, col=1)
         figSyntheses.update_layout(height=2000, width=1500,title_text="Données synthétiques")
         
