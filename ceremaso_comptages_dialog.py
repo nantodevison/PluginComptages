@@ -88,21 +88,19 @@ class CeremaSoComptagesDonneesType(QtWidgets.QDialog, FORM_CLASS_DonneesType):
         ouvrir la fenetre de la classe CeremaSoComptagesTraiterPtDialog
         """
         donneesType='Fim' if self.radioButtonFim.isChecked() else 'Indiv'
-        self.fenetreTraiterPt=CeremaSoComptagesTraiterPtDialog(donneesType)
+        vitesse=self.checkBoxVitesse.isChecked()
+        print(vitesse)
+        self.fenetreTraiterPt=CeremaSoComptagesTraiterPtDialog(donneesType, vitesse)
         self.fenetreTraiterPt.show()
-        # Run the dialog event loop
-        result = self.fenetreTraiterPt.exec_()
-        # See if OK was pressed
-        if result:
-            pass
 
        
     
         
 class CeremaSoComptagesTraiterPtDialog(QtWidgets.QDialog, FORM_CLASS_traiterPt):
-    def __init__(self,donneesType, parent=None):
+    def __init__(self,donneesType,vitesse, parent=None):
         """Constructor."""
         self.donneesType=donneesType
+        self.vitesse=vitesse
         super(CeremaSoComptagesTraiterPtDialog, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
         # After self.setupUi() you can access any designer object by doing
@@ -142,11 +140,12 @@ class CeremaSoComptagesTraiterPtDialog(QtWidgets.QDialog, FORM_CLASS_traiterPt):
                 typeTraitement=t
                 break
                 
-        self.fenetreVisuExport=CeremaSoComptagesVisuExport(self.donneesType,typeTraitement,source)
+        self.fenetreVisuExport=CeremaSoComptagesVisuExport(self.donneesType,self.vitesse,typeTraitement,source)
         self.fenetreVisuExport.show()
+        self.fenetreVisuExport.activateWindow()
         
 class CeremaSoComptagesVisuExport(QtWidgets.QDialog, FORM_CLASS_VisuExport):
-    def __init__(self, donneesType,typeTraite,source,parent=None):
+    def __init__(self, donneesType,vitesse,typeTraite,source,parent=None):
         """Constructor."""
         super(CeremaSoComptagesVisuExport, self).__init__(parent)
         # Set up the user interface from Designer through FORM_CLASS.
@@ -158,35 +157,101 @@ class CeremaSoComptagesVisuExport(QtWidgets.QDialog, FORM_CLASS_VisuExport):
         self.buttonBox.accepted.connect(self.visuGraph)
         self.groupBoxVisu.toggled.connect(self.basculeGroupBox)
         self.groupBoxExport.toggled.connect(self.basculeGroupBox)
+        self.groupBoxSynthese.toggled.connect(self.basculeSyntheseDetail)
+        self.groupBoxDetails.toggled.connect(self.basculeSyntheseDetail)
+        
+        
         
         self.typeTraite=typeTraite
         self.source=source
         self.donneesType=donneesType
+        self.vitesse=vitesse
         self.cpt=self.calculDfComptage()
+        self.filtrerTypeVehPossible()
         
     def calculDfComptage(self):
         if self.typeTraite=='1Point' :
-            cpt=di.ComptageDonneesIndiv(self.source[0])
+            if self.donneesType=='Indiv' :
+                cpt=di.ComptageDonneesIndiv(self.source[0], self.vitesse)
+            else :
+                cpt=di.ComptageFim(self.source[0])
         return cpt
+    
+    def filtrerTypeVehPossible(self):
+        """
+        selon les donnes de comptage, filtrer les typs de veh dispo ou non
+        """
+        dicoTypeVeh={'vl':[self.checkBoxVlSynthese,self.checkBoxVlDetails], 'pl':[self.checkBoxPlSynthese,self.checkBoxPlDetails], 
+                     '2r':[self.checkBox2rSynthese,self.checkBox2rDetails], 'tv':[self.checkBoxTvSynthese,self.checkBoxTvDetails]}
+        for k,v in dicoTypeVeh.items() :
+            if k not in self.cpt.dfSemaineMoyenne.type_veh.unique() :
+                print(f'{k} pas dan sdico')
+                for w in v : 
+                    print(k,w)
+                    w.setEnabled(False)
+        
+    
+    def trouverTypeVisu(self):
+        """
+        renvoyer si on veut synthese ou detail
+        """
+        if self.groupBoxSynthese.isChecked() : 
+            return 'synthese'
+        else :
+            return 'details'
     
     def trouverCheckBoxOn(self):
         if self.groupBoxVisu.isChecked() : 
             listPeriod=[cb.text().lower().replace(' ','') for cb in self.groupBoxVisuPeriode.findChildren(QCheckBox) if cb.isChecked()]
             listSens=[cb.text().lower().replace(' ','') for cb in self.groupBoxVisuSens.findChildren(QCheckBox) if cb.isChecked()]
             listTypeVeh=[cb.text().lower().replace(' ','') for cb in self.groupBoxTypeVeh.findChildren(QCheckBox) if cb.isChecked()]
+        if self.groupBoxSynthese.isChecked() : 
+            listPeriod=[]
+            listSens=[]
+            listTypeVeh=[cb.text().lower().replace(' ','') for cb in self.groupBoxSynthese.findChildren(QCheckBox) if cb.isChecked()]
         return listPeriod,listSens,listTypeVeh
+    
+    @pyqtSlot()
+    def basculeSyntheseDetail(self):
+        """
+        basculer entre synthese et detail, les deux se rejettent
+        """
+        if self.sender().isChecked() :
+            self.filtrerTypeVehPossible()
+            if self.sender()==self.groupBoxSynthese:
+                self.groupBoxDetails.setEnabled(False)
+                self.groupBoxDetails.setChecked(False)
+            else : 
+                self.groupBoxSynthese.setEnabled(False)
+                self.groupBoxSynthese.setChecked(False)
+        else : 
+            if self.sender()==self.groupBoxSynthese:
+                self.groupBoxDetails.setEnabled(True) 
+                self.groupBoxDetails.setChecked(True)
+                self.filtrerTypeVehPossible()
+            else : 
+                self.groupBoxSynthese.setEnabled(True)
+                self.groupBoxSynthese.setChecked(True)
+                self.filtrerTypeVehPossible()
     
     @pyqtSlot()
     def visuGraph(self):
         listPeriod,listSens,listTypeVeh=self.trouverCheckBoxOn()
-        self.cpt.graphs(listTypeVeh, listPeriod, listSens)
-        for p in listPeriod :
-            for s in listSens :
-                print(p, s)
-                self.cpt.dicoHoraire[p][s]['graph'].show()
-                self.cpt.dicoJournalier[p][s]['graph'].show()
-                if s=='2sens' : 
-                    self.cpt.dicoJournalier[p]['compSens']['graph'].show()
+        print(listPeriod,listSens,listTypeVeh,self.vitesse)
+        if self.trouverTypeVisu()=='details' :
+            self.cpt.graphsSynthese(listTypeVeh, listPeriod, listSens,self.vitesse)
+            for p in listPeriod :
+                for s in listSens :
+                    print(p, s)
+                    self.cpt.dicoHoraire[p][s]['graph'].show()
+                    if p=='mja' :
+                        self.cpt.dicoJournalier[p][s]['graph'].show()
+                        if s=='2sens' : 
+                            self.cpt.dicoJournalier[p]['compSens']['graph'].show()
+        else :
+            figSyntheses, figJournaliere=self.cpt.graphsSynthese(listTypeVeh, vitesse=self.vitesse,synthese=True)
+            figSyntheses.show()
+            figJournaliere.show()
     
     @pyqtSlot()
     def basculeGroupBox(self):

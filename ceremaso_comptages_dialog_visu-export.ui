@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
+    <width>379</width>
     <height>310</height>
    </rect>
   </property>
@@ -73,132 +73,199 @@
      <property name="checked">
       <bool>false</bool>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QGroupBox" name="groupBoxVisuSens">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QGroupBox" name="groupBoxDetails">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>100</height>
+         </size>
+        </property>
         <property name="title">
-         <string>Sens</string>
+         <string>Détails</string>
         </property>
         <property name="flat">
          <bool>true</bool>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="checked">
          <bool>false</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QCheckBox" name="checkBoxSens1">
-           <property name="text">
-            <string>Sens 1</string>
+          <widget class="QGroupBox" name="groupBoxVisuSens">
+           <property name="title">
+            <string>Sens</string>
            </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QCheckBox" name="checkBoxSens1">
+              <property name="text">
+               <string>Sens 1</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxSens2">
+              <property name="text">
+               <string>Sens 2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxTousSens">
+              <property name="text">
+               <string>2 sens</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxSens2">
-           <property name="text">
-            <string>Sens 2</string>
+          <widget class="QGroupBox" name="groupBoxTypeVeh">
+           <property name="title">
+            <string>Type de vehicules</string>
            </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QCheckBox" name="checkBoxTvDetails">
+              <property name="text">
+               <string>TV</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxVlDetails">
+              <property name="text">
+               <string>VL</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxPlDetails">
+              <property name="text">
+               <string>PL</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBox2rDetails">
+              <property name="text">
+               <string>2R</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxTousSens">
-           <property name="text">
-            <string>2 sens</string>
+          <widget class="QGroupBox" name="groupBoxVisuPeriode">
+           <property name="title">
+            <string>Periode</string>
            </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QCheckBox" name="checkBoxMja">
+              <property name="text">
+               <string>MJA</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxMJO">
+              <property name="text">
+               <string>MJO</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxSamedi">
+              <property name="text">
+               <string>Samedi</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="checkBoxDimanche">
+              <property name="text">
+               <string>Dimanche</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item>
-       <widget class="QGroupBox" name="groupBoxTypeVeh">
+      <item row="0" column="2">
+       <widget class="QGroupBox" name="groupBoxSynthese">
         <property name="title">
-         <string>Type de vehicules</string>
+         <string>Synthese</string>
         </property>
         <property name="flat">
          <bool>true</bool>
         </property>
         <property name="checkable">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QCheckBox" name="checkBoxTv">
+          <widget class="QCheckBox" name="checkBoxTvSynthese">
            <property name="text">
             <string>TV</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxVl">
+          <widget class="QCheckBox" name="checkBoxVlSynthese">
            <property name="text">
             <string>VL</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBoxPl">
+          <widget class="QCheckBox" name="checkBoxPlSynthese">
            <property name="text">
             <string>PL</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox2r">
+          <widget class="QCheckBox" name="checkBox2rSynthese">
            <property name="text">
             <string>2R</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBoxVisuPeriode">
-        <property name="title">
-         <string>Periode</string>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QCheckBox" name="checkBoxMja">
-           <property name="text">
-            <string>MJA</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBoxMJO">
-           <property name="text">
-            <string>MJO</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBoxSamedi">
-           <property name="text">
-            <string>Samedi</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="checkBoxDimanche">
-           <property name="text">
-            <string>Dimanche</string>
            </property>
           </widget>
          </item>
