@@ -88,8 +88,9 @@ class CeremaSoComptagesDonneesType(QtWidgets.QDialog, FORM_CLASS_DonneesType):
         ouvrir la fenetre de la classe CeremaSoComptagesTraiterPtDialog
         """
         donneesType='Fim' if self.radioButtonFim.isChecked() else 'Indiv'
+        print(f'donneesType = {donneesType}')
         vitesse=self.checkBoxVitesse.isChecked()
-        print(vitesse)
+        print(f'Prise en compte vitesse : {vitesse}')
         self.fenetreTraiterPt=CeremaSoComptagesTraiterPtDialog(donneesType, vitesse)
         self.fenetreTraiterPt.show()
 
@@ -166,15 +167,20 @@ class CeremaSoComptagesVisuExport(QtWidgets.QDialog, FORM_CLASS_VisuExport):
         self.source=source
         self.donneesType=donneesType
         self.vitesse=vitesse
+        print(f'type_traite : {self.typeTraite}')
         self.cpt=self.calculDfComptage()
         self.filtrerTypeVehPossible()
         
     def calculDfComptage(self):
-        if self.typeTraite=='1Point' :
+        if self.typeTraite=='1Point' : #cas ou on choisit de traiter 1 point de comptage complet
             if self.donneesType=='Indiv' :
                 cpt=di.ComptageDonneesIndiv(self.source[0], self.vitesse)
             else :
                 cpt=di.ComptageFim(self.source[0])
+        elif self.typeTraite=='fichiers' : #ca sou on choisit de traiter un fichier 
+            if self.donneesType=='Indiv' :
+                cpt=
+        
         return cpt
     
     def filtrerTypeVehPossible(self):
