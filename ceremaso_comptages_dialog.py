@@ -177,9 +177,12 @@ class CeremaSoComptagesVisuExport(QtWidgets.QDialog, FORM_CLASS_VisuExport):
                 cpt=di.ComptageDonneesIndiv(self.source[0], self.vitesse)
             else :
                 cpt=di.ComptageFim(self.source[0])
-        elif self.typeTraite=='fichiers' : #ca sou on choisit de traiter un fichier 
+        
+        ### EN COURS POINT D'ARRET###########
+        """elif self.typeTraite=='fichiers' : #ca sou on choisit de traiter un fichier 
             if self.donneesType=='Indiv' :
                 cpt=
+        """
         
         return cpt
     
